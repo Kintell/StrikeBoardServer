@@ -1,0 +1,3 @@
+name: StrikeBoard
+version: 1.0.0
+main: com.kokakiwi.kintell.plugins.strike.server.KintellStrikeBoardServerPlugin
