@@ -20,7 +20,7 @@ import com.kokakiwi.kintell.server.core.board.Board;
 
 public class StrikeBoard extends Board
 {
-    public final static int            WIDTH    = 768;
+    public final static int            WIDTH    = 1024;
     public final static int            HEIGHT   = WIDTH * 3 / 4;
     
     private final Map<String, Striker> strikers = Maps.newLinkedHashMap();
@@ -122,7 +122,7 @@ public class StrikeBoard extends Board
         }
         removed.clear();
         
-        while (hasNext())
+        while (hasNext() && isRunning())
         {
             RegisteredProgram program = next();
             Striker striker = strikers.get(program.getId());
@@ -172,6 +172,7 @@ public class StrikeBoard extends Board
             if (!striker.isDead())
             {
                 winner = striker;
+                break;
             }
         }
         

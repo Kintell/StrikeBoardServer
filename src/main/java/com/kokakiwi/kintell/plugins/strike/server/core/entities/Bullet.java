@@ -18,9 +18,9 @@ public class Bullet extends Entity
         this.owner = owner;
     }
     
-    public boolean isOwn(Striker tank)
+    public boolean isOwn(Striker striker)
     {
-        return tank.equals(owner);
+        return striker.equals(owner);
     }
     
     @Override
@@ -35,7 +35,7 @@ public class Bullet extends Entity
         
         for (Striker striker : board.getStrikers().values())
         {
-            if (!striker.equals(owner))
+            if (!striker.equals(owner) && !striker.isDead())
             {
                 double dx = (striker.getLocation().getX() + (Striker.WIDTH / 2))
                         - location.getX();

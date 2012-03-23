@@ -3,16 +3,14 @@ package com.kokakiwi.kintell.plugins.strike.server.core;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.kokakiwi.kintell.plugins.strike.server.StrikeBoard;
-import com.kokakiwi.kintell.plugins.strike.server.core.entities.Bullet;
 import com.kokakiwi.kintell.plugins.strike.server.core.entities.Striker;
 import com.kokakiwi.kintell.server.core.exec.annotations.NonAccessible;
 
 public class World
 {
     private final StrikeBoard board;
-    private final Striker      striker;
+    private final Striker     striker;
     
     public World(StrikeBoard board, Striker striker)
     {
@@ -79,35 +77,30 @@ public class World
         return nearest;
     }
     
-    public List<Bullet> getBullets(Striker tank, float angle)
+    public Entity getNearestEntity(Location source, List<Entity> entities)
     {
-        List<Bullet> bullets = Lists.newLinkedList();
+        Entity nearest = null;
+        double min = Double.MAX_VALUE;
         
-        for (Entity entity : board.getEntities().values())
+        for (Entity entity : entities)
         {
-            if (entity instanceof Bullet)
+            double x0 = entity.getLocation().getX();
+            double y0 = entity.getLocation().getY();
+            
+            double x1 = source.getX();
+            double y1 = source.getY();
+            
+            double distance = Math.sqrt(Math.pow(Math.abs(x1 - x0), 2)
+                    + Math.pow(Math.abs(y1 - y0), 2));
+            
+            if (distance < min)
             {
-                Bullet bullet = (Bullet) entity;
-                
-                double angleTo = tank.getLocation().getAngle()
-                        - tank.angleTo(bullet.getLocation());
-                while (angleTo < -180)
-                {
-                    angleTo += 360;
-                }
-                while (angleTo > 180)
-                {
-                    angleTo -= 360;
-                }
-                
-                if (Math.abs(angleTo) < angle)
-                {
-                    bullets.add(bullet);
-                }
+                min = distance;
+                nearest = entity;
             }
         }
         
-        return bullets;
+        return nearest;
     }
     
     @NonAccessible

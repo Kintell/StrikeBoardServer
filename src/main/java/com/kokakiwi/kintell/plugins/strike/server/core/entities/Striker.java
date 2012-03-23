@@ -1,5 +1,8 @@
 package com.kokakiwi.kintell.plugins.strike.server.core.entities;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.kokakiwi.kintell.plugins.strike.server.StrikeBoard;
 import com.kokakiwi.kintell.plugins.strike.server.core.Entity;
 import com.kokakiwi.kintell.plugins.strike.server.core.Location;
@@ -12,6 +15,8 @@ public class Striker extends Entity
     public final static int         WIDTH          = 32;
     public final static int         HEIGHT         = 32;
     public final static int         MAXLIFE        = 100;
+    public final static int         MAXBULLETS     = 60;
+    public final static float       VIEWANGLE      = 15.0f;
     
     private final RegisteredProgram program;
     
@@ -21,7 +26,7 @@ public class Striker extends Entity
     
     private int                     life           = MAXLIFE;
     private boolean                 dead           = false;
-    private Counter                 bulletsCounter = new Counter(20);
+    private Counter                 bulletsCounter = null;
     
     public Striker(String id, StrikeBoard board, RegisteredProgram program)
     {
@@ -71,6 +76,7 @@ public class Striker extends Entity
         return dead;
     }
     
+    @NonAccessible
     public void checkIsDead()
     {
         if (life <= 0)
@@ -121,6 +127,22 @@ public class Striker extends Entity
                 * -Math.sin(Math.toRadians((location.getAngle() + motAngle) % 360));
     }
     
+    public void shiftLeft()
+    {
+        motX = getSpeed()
+                * Math.cos(Math.toRadians((location.getAngle() + motAngle + 90) % 360));
+        motY = getSpeed()
+                * Math.sin(Math.toRadians((location.getAngle() + motAngle + 90) % 360));
+    }
+    
+    public void shiftRight()
+    {
+        motX = getSpeed()
+                * Math.cos(Math.toRadians((location.getAngle() + motAngle - 90) % 360));
+        motY = getSpeed()
+                * Math.sin(Math.toRadians((location.getAngle() + motAngle - 90) % 360));
+    }
+    
     public void turnLeft()
     {
         motAngle = getTurnSpeed();
@@ -138,8 +160,15 @@ public class Striker extends Entity
     
     public void fire()
     {
-        if (bulletsCounter.increment() == bulletsCounter.max())
+        
+        if (bulletsCounter == null
+                || bulletsCounter.increment() == bulletsCounter.max())
         {
+            if (bulletsCounter == null)
+            {
+                bulletsCounter = new Counter(20);
+            }
+            
             int x = (int) Math.floor(location.getX());
             int y = (int) Math.floor(location.getY());
             
@@ -184,6 +213,37 @@ public class Striker extends Entity
                 + Math.pow(Math.abs(yy), 2));
         
         return distance;
+    }
+    
+    public List<Bullet> viewBullets()
+    {
+        List<Bullet> bullets = Lists.newLinkedList();
+        
+        for (Entity entity : board.getEntities().values())
+        {
+            if (entity instanceof Bullet)
+            {
+                Bullet bullet = (Bullet) entity;
+                
+                double angleTo = location.getAngle()
+                        - angleTo(bullet.getLocation());
+                while (angleTo < -180)
+                {
+                    angleTo += 360;
+                }
+                while (angleTo > 180)
+                {
+                    angleTo -= 360;
+                }
+                
+                if (Math.abs(angleTo) < (VIEWANGLE / 2))
+                {
+                    bullets.add(bullet);
+                }
+            }
+        }
+        
+        return bullets;
     }
     
     @NonAccessible
