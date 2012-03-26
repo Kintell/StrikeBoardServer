@@ -55,7 +55,7 @@ public class UpdateEntity implements Encodable
         location.encode(buf);
         
         buf.writeInteger(datas.size());
-        for (Map.Entry<String, String> data : datas.entrySet())
+        for (final Map.Entry<String, String> data : datas.entrySet())
         {
             buf.writeString(data.getKey());
             buf.writeString(data.getValue());
@@ -67,11 +67,11 @@ public class UpdateEntity implements Encodable
         id = buf.readString();
         location.decode(buf);
         
-        int size = buf.readInt();
+        final int size = buf.readInt();
         for (int i = 0; i < size; i++)
         {
-            String key = buf.readString();
-            String value = buf.readString();
+            final String key = buf.readString();
+            final String value = buf.readString();
             
             datas.put(key, value);
         }

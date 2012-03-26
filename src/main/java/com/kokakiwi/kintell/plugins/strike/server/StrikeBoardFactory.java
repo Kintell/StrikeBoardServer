@@ -18,7 +18,7 @@ public class StrikeBoardFactory implements BoardFactory<StrikeBoard>
     
     public StrikeBoard createBoard(KintellServerCore core)
     {
-        StrikeBoard board = new StrikeBoard(core);
+        final StrikeBoard board = new StrikeBoard(core, this);
         
         return board;
     }

@@ -30,7 +30,7 @@ public class Utilities
     
     public EnnemyStriker randomEnnemy(List<EnnemyStriker> ennemies)
     {
-        int index = Math.abs(random.nextInt()) % ennemies.size();
+        final int index = Math.abs(random.nextInt()) % ennemies.size();
         
         return ennemies.get(index);
     }

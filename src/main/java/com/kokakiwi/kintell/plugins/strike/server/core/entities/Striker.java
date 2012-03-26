@@ -16,12 +16,14 @@ public class Striker extends Entity
     public final static int         HEIGHT         = 32;
     public final static int         MAXLIFE        = 100;
     public final static int         MAXBULLETS     = 60;
-    public final static float       VIEWANGLE      = 15.0f;
+    public final static float       VIEWANGLE      = 15.0f * 2;
     
     private final RegisteredProgram program;
     
     private double                  motX           = 0;
     private double                  motY           = 0;
+    private double                  motX2          = 0;
+    private double                  motY2          = 0;
     private float                   motAngle       = 0;
     
     private int                     life           = MAXLIFE;
@@ -81,7 +83,7 @@ public class Striker extends Entity
     {
         if (life <= 0)
         {
-            this.dead = true;
+            dead = true;
         }
     }
     
@@ -94,20 +96,20 @@ public class Striker extends Entity
     @NonAccessible
     public void damage(int amount)
     {
-        this.life -= amount;
-        if (this.life <= 0)
+        life -= amount;
+        if (life <= 0)
         {
-            this.life = 0;
+            life = 0;
         }
     }
     
     @NonAccessible
     public void heal(int amount)
     {
-        this.life += amount;
-        if (this.life > MAXLIFE)
+        life += amount;
+        if (life > MAXLIFE)
         {
-            this.life = MAXLIFE;
+            life = MAXLIFE;
         }
     }
     
@@ -129,17 +131,17 @@ public class Striker extends Entity
     
     public void shiftLeft()
     {
-        motX = getSpeed()
+        motX2 = getSpeed()
                 * Math.cos(Math.toRadians((location.getAngle() + motAngle + 90) % 360));
-        motY = getSpeed()
+        motY2 = getSpeed()
                 * Math.sin(Math.toRadians((location.getAngle() + motAngle + 90) % 360));
     }
     
     public void shiftRight()
     {
-        motX = getSpeed()
+        motX2 = getSpeed()
                 * Math.cos(Math.toRadians((location.getAngle() + motAngle - 90) % 360));
-        motY = getSpeed()
+        motY2 = getSpeed()
                 * Math.sin(Math.toRadians((location.getAngle() + motAngle - 90) % 360));
     }
     
@@ -169,16 +171,17 @@ public class Striker extends Entity
                 bulletsCounter = new Counter(20);
             }
             
-            int x = (int) Math.floor(location.getX());
-            int y = (int) Math.floor(location.getY());
+            final int x = (int) Math.floor(location.getX());
+            final int y = (int) Math.floor(location.getY());
             
-            int x0 = (int) (x + (WIDTH / 2) + (WIDTH / 2 + 13)
+            final int x0 = (int) (x + WIDTH / 2 + (WIDTH / 2 + 13)
                     * Math.cos(Math.toRadians(location.getAngle())));
-            int y0 = (int) (y + (HEIGHT / 2) + (WIDTH / 2 + 13)
+            final int y0 = (int) (y + HEIGHT / 2 + (WIDTH / 2 + 13)
                     * Math.sin(Math.toRadians(location.getAngle())));
             
-            Location bulletLocation = new Location(x0, y0, location.getAngle());
-            Bullet bullet = new Bullet(board, this,
+            final Location bulletLocation = new Location(x0, y0,
+                    location.getAngle());
+            final Bullet bullet = new Bullet(board, this,
                     board.createEntityId(Bullet.class));
             bullet.setLocation(bulletLocation);
             board.addEntity(bullet);
@@ -187,8 +190,8 @@ public class Striker extends Entity
     
     public double angleTo(Location to)
     {
-        double xx = to.getX() - getLocation().getX();
-        double yy = getLocation().getY() - to.getY();
+        final double xx = to.getX() - getLocation().getX();
+        final double yy = getLocation().getY() - to.getY();
         
         double rads = Math.atan2(yy, xx);
         
@@ -206,10 +209,10 @@ public class Striker extends Entity
     
     public double distanceTo(Location to)
     {
-        double xx = to.getX() - getLocation().getX();
-        double yy = to.getY() - getLocation().getY();
+        final double xx = to.getX() - getLocation().getX();
+        final double yy = to.getY() - getLocation().getY();
         
-        double distance = Math.sqrt(Math.pow(Math.abs(xx), 2)
+        final double distance = Math.sqrt(Math.pow(Math.abs(xx), 2)
                 + Math.pow(Math.abs(yy), 2));
         
         return distance;
@@ -217,13 +220,13 @@ public class Striker extends Entity
     
     public List<Bullet> viewBullets()
     {
-        List<Bullet> bullets = Lists.newLinkedList();
+        final List<Bullet> bullets = Lists.newLinkedList();
         
-        for (Entity entity : board.getEntities().values())
+        for (final Entity entity : board.getEntities().values())
         {
             if (entity instanceof Bullet)
             {
-                Bullet bullet = (Bullet) entity;
+                final Bullet bullet = (Bullet) entity;
                 
                 double angleTo = location.getAngle()
                         - angleTo(bullet.getLocation());
@@ -236,7 +239,7 @@ public class Striker extends Entity
                     angleTo -= 360;
                 }
                 
-                if (Math.abs(angleTo) < (VIEWANGLE / 2))
+                if (Math.abs(angleTo) < VIEWANGLE / 2)
                 {
                     bullets.add(bullet);
                 }
@@ -252,10 +255,12 @@ public class Striker extends Entity
         return program;
     }
     
+    @Override
     @NonAccessible
     public void update()
     {
         location.setX(location.getX() + motX);
+        location.setX(location.getX() + motX2);
         if (location.getX() < 0)
         {
             location.setX(0);
@@ -265,6 +270,7 @@ public class Striker extends Entity
             location.setX(StrikeBoard.WIDTH - WIDTH);
         }
         location.setY(location.getY() + motY);
+        location.setY(location.getY() + motY2);
         if (location.getY() < 0)
         {
             location.setY(0);
@@ -273,12 +279,14 @@ public class Striker extends Entity
         {
             location.setY(StrikeBoard.HEIGHT - HEIGHT);
         }
-        for (Striker striker : board.getStrikers().values())
+        for (final Striker striker : board.getStrikers().values())
         {
             if (!striker.equals(this))
             {
-                double dx = striker.getLocation().getX() - location.getX();
-                double dy = striker.getLocation().getY() - location.getY();
+                final double dx = striker.getLocation().getX()
+                        - location.getX();
+                final double dy = striker.getLocation().getY()
+                        - location.getY();
                 
                 if (Math.abs(dx) < WIDTH && Math.abs(dy) < HEIGHT)
                 {
@@ -320,15 +328,15 @@ public class Striker extends Entity
         final int prime = 31;
         int result = 1;
         result = prime * result
-                + ((bulletsCounter == null) ? 0 : bulletsCounter.hashCode());
+                + (bulletsCounter == null ? 0 : bulletsCounter.hashCode());
         result = prime * result + life;
         result = prime * result + Float.floatToIntBits(motAngle);
         long temp;
         temp = Double.doubleToLongBits(motX);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (int) (temp ^ temp >>> 32);
         temp = Double.doubleToLongBits(motY);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + ((program == null) ? 0 : program.hashCode());
+        result = prime * result + (int) (temp ^ temp >>> 32);
+        result = prime * result + (program == null ? 0 : program.hashCode());
         return result;
     }
     
@@ -336,12 +344,18 @@ public class Striker extends Entity
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
+        }
         if (getClass() != obj.getClass())
+        {
             return false;
-        Striker other = (Striker) obj;
+        }
+        final Striker other = (Striker) obj;
         if (other.getId().equals(getId()))
         {
             return true;

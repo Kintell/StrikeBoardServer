@@ -5,9 +5,9 @@ import com.kokakiwi.kintell.plugins.strike.server.StrikeBoard;
 public abstract class Entity
 {
     protected final StrikeBoard board;
-    protected final String    id;
-    protected final String    type;
-    protected Location        location = new Location();
+    protected final String      id;
+    protected final String      type;
+    protected Location          location = new Location();
     
     public Entity(StrikeBoard board, String id, String type)
     {

@@ -17,9 +17,11 @@ import com.kokakiwi.kintell.plugins.strike.server.core.net.UpdateEntity;
 import com.kokakiwi.kintell.plugins.strike.server.core.net.Win;
 import com.kokakiwi.kintell.server.core.KintellServerCore;
 import com.kokakiwi.kintell.server.core.board.Board;
+import com.kokakiwi.kintell.server.core.board.BoardFactory;
 
 public class StrikeBoard extends Board
 {
+    
     public final static int            WIDTH    = 1024;
     public final static int            HEIGHT   = WIDTH * 3 / 4;
     
@@ -29,16 +31,17 @@ public class StrikeBoard extends Board
     
     private int                        count    = 0;
     
-    public StrikeBoard(KintellServerCore core)
+    public StrikeBoard(KintellServerCore core,
+            BoardFactory<? extends Board> boardFactory)
     {
-        super(core);
+        super(core, boardFactory);
     }
     
     @Override
     public void configureProgram(RegisteredProgram program)
     {
-        Striker striker = new Striker(program.getId(), this, program);
-        World world = new World(this, striker);
+        final Striker striker = new Striker(program.getId(), this, program);
+        final World world = new World(this, striker);
         
         striker.setLocation(createLocation());
         
@@ -54,9 +57,9 @@ public class StrikeBoard extends Board
     
     public Location createLocation()
     {
-        Location location = new Location();
+        final Location location = new Location();
         
-        Random random = new Random();
+        final Random random = new Random();
         do
         {
             location.setX(random.nextDouble() * WIDTH);
@@ -70,22 +73,22 @@ public class StrikeBoard extends Board
     {
         boolean result = true;
         
-        if (loc.getX() < Striker.WIDTH || loc.getY() < Striker.HEIGHT
-                || Math.abs(loc.getX() - WIDTH) < Striker.WIDTH
-                || Math.abs(loc.getY() - HEIGHT) < Striker.HEIGHT)
+        if (loc.getX() < 0 || loc.getY() < 0
+                || Math.abs(WIDTH - loc.getX()) < Striker.WIDTH
+                || Math.abs(HEIGHT - loc.getY()) < Striker.HEIGHT)
         {
             result = false;
         }
         else
         {
-            for (Striker striker : strikers.values())
+            for (final Striker striker : strikers.values())
             {
-                double diffX = Math.abs(striker.getLocation().getX()
+                final double diffX = Math.abs(striker.getLocation().getX()
                         - loc.getX());
-                double diffY = Math.abs(striker.getLocation().getY()
+                final double diffY = Math.abs(striker.getLocation().getY()
                         - loc.getY());
                 
-                if (diffX < Striker.WIDTH || diffY < Striker.HEIGHT)
+                if (diffX < Striker.WIDTH && diffY < Striker.HEIGHT)
                 {
                     result = false;
                 }
@@ -109,14 +112,14 @@ public class StrikeBoard extends Board
     @Override
     public void tick()
     {
-        for (Entity entity : entities.values())
+        for (final Entity entity : entities.values())
         {
             entity.update();
             sendData("updateEntity",
                     new UpdateEntity(entity.getId(), entity.getLocation()));
         }
         
-        for (String id : removed)
+        for (final String id : removed)
         {
             removeEntity(id, "none");
         }
@@ -124,8 +127,8 @@ public class StrikeBoard extends Board
         
         while (hasNext() && isRunning())
         {
-            RegisteredProgram program = next();
-            Striker striker = strikers.get(program.getId());
+            final RegisteredProgram program = next();
+            final Striker striker = strikers.get(program.getId());
             
             if (!striker.isDead())
             {
@@ -142,7 +145,7 @@ public class StrikeBoard extends Board
                     checkWin();
                 }
                 
-                UpdateEntity packet = new UpdateEntity(striker.getId(),
+                final UpdateEntity packet = new UpdateEntity(striker.getId(),
                         striker.getLocation());
                 packet.getDatas()
                         .put("life", String.valueOf(striker.getLife()));
@@ -156,10 +159,10 @@ public class StrikeBoard extends Board
     {
         if (count == 1)
         {
-            Striker winner = getWinner();
+            final Striker winner = getWinner();
             sendData("win", new Win(winner.getId()));
             
-            setRunning(false);
+            win(winner.getProgram());
         }
     }
     
@@ -167,7 +170,7 @@ public class StrikeBoard extends Board
     {
         Striker winner = null;
         
-        for (Striker striker : strikers.values())
+        for (final Striker striker : strikers.values())
         {
             if (!striker.isDead())
             {
@@ -196,11 +199,11 @@ public class StrikeBoard extends Board
     
     public String createEntityId(Class<? extends Entity> clazz)
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(clazz.getSimpleName());
         sb.append('-');
         
-        Random random = new Random();
+        final Random random = new Random();
         int entityId = random.nextInt();
         
         while (entities.containsKey(sb.toString() + String.valueOf(entityId)))
@@ -216,15 +219,15 @@ public class StrikeBoard extends Board
     public void addEntity(Entity entity)
     {
         entities.put(entity.getId(), entity);
-        SpawnEntity packet = new SpawnEntity(entity.getType(), entity.getId(),
-                entity.getLocation());
+        final SpawnEntity packet = new SpawnEntity(entity.getType(),
+                entity.getId(), entity.getLocation());
         sendData("spawnEntity", packet);
     }
     
     public void removeEntity(String id, String effect)
     {
         entities.remove(id);
-        RemoveEntity packet = new RemoveEntity(id, effect);
+        final RemoveEntity packet = new RemoveEntity(id, effect);
         sendData("removeEntity", packet);
     }
 }

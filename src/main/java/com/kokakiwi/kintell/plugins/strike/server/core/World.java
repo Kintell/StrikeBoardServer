@@ -35,14 +35,14 @@ public class World
     
     public List<EnnemyStriker> getEnnemies(boolean includeDead)
     {
-        List<EnnemyStriker> ennemies = new LinkedList<EnnemyStriker>();
+        final List<EnnemyStriker> ennemies = new LinkedList<EnnemyStriker>();
         
-        for (Striker striker : board.getStrikers().values())
+        for (final Striker striker : board.getStrikers().values())
         {
             if (!striker.getId().equals(this.striker.getId())
                     && (!striker.isDead() || includeDead))
             {
-                EnnemyStriker ennemyStriker = new EnnemyStriker(striker);
+                final EnnemyStriker ennemyStriker = new EnnemyStriker(striker);
                 ennemies.add(ennemyStriker);
             }
         }
@@ -56,15 +56,15 @@ public class World
         EnnemyStriker nearest = null;
         double min = Double.MAX_VALUE;
         
-        for (EnnemyStriker striker : ennemies)
+        for (final EnnemyStriker striker : ennemies)
         {
-            double x0 = striker.getLocation().getX();
-            double y0 = striker.getLocation().getY();
+            final double x0 = striker.getLocation().getX();
+            final double y0 = striker.getLocation().getY();
             
-            double x1 = source.getX();
-            double y1 = source.getY();
+            final double x1 = source.getX();
+            final double y1 = source.getY();
             
-            double distance = Math.sqrt(Math.pow(Math.abs(x1 - x0), 2)
+            final double distance = Math.sqrt(Math.pow(Math.abs(x1 - x0), 2)
                     + Math.pow(Math.abs(y1 - y0), 2));
             
             if (distance < min)
@@ -82,15 +82,15 @@ public class World
         Entity nearest = null;
         double min = Double.MAX_VALUE;
         
-        for (Entity entity : entities)
+        for (final Entity entity : entities)
         {
-            double x0 = entity.getLocation().getX();
-            double y0 = entity.getLocation().getY();
+            final double x0 = entity.getLocation().getX();
+            final double y0 = entity.getLocation().getY();
             
-            double x1 = source.getX();
-            double y1 = source.getY();
+            final double x1 = source.getX();
+            final double y1 = source.getY();
             
-            double distance = Math.sqrt(Math.pow(Math.abs(x1 - x0), 2)
+            final double distance = Math.sqrt(Math.pow(Math.abs(x1 - x0), 2)
                     + Math.pow(Math.abs(y1 - y0), 2));
             
             if (distance < min)

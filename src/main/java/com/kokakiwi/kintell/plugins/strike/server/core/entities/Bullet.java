@@ -33,19 +33,19 @@ public class Bullet extends Entity
             remove();
         }
         
-        for (Striker striker : board.getStrikers().values())
+        for (final Striker striker : board.getStrikers().values())
         {
             if (!striker.equals(owner) && !striker.isDead())
             {
-                double dx = (striker.getLocation().getX() + (Striker.WIDTH / 2))
-                        - location.getX();
-                double dy = (striker.getLocation().getY() + (Striker.HEIGHT / 2))
-                        - location.getY();
+                final double dx = striker.getLocation().getX() + Striker.WIDTH
+                        / 2 - location.getX();
+                final double dy = striker.getLocation().getY() + Striker.HEIGHT
+                        / 2 - location.getY();
                 
-                double distance = Math.abs(Math.sqrt(Math.pow(dx, 2)
+                final double distance = Math.abs(Math.sqrt(Math.pow(dx, 2)
                         + Math.pow(dy, 2)));
                 
-                if (distance < (Striker.WIDTH / 2))
+                if (distance < Striker.WIDTH / 2)
                 {
                     striker.damage(DAMAGE);
                     remove();
@@ -53,10 +53,10 @@ public class Bullet extends Entity
             }
         }
         
-        double motX = SPEED
-                * Math.cos(Math.toRadians((location.getAngle()) % 360));
-        double motY = SPEED
-                * Math.sin(Math.toRadians((location.getAngle()) % 360));
+        final double motX = SPEED
+                * Math.cos(Math.toRadians(location.getAngle() % 360));
+        final double motY = SPEED
+                * Math.sin(Math.toRadians(location.getAngle() % 360));
         
         location.setX(location.getX() + motX);
         location.setY(location.getY() + motY);
